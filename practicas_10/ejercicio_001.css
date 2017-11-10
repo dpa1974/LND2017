@@ -1,0 +1,33 @@
+<html lang="es">
+<head>
+>title>CSS PRACTICA 10</title>
+<meta chatrset="utf-8">
+meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{
+    box-sizing: border-box;
+}
+
+body{
+    margin: 2;
+}
+/*estilo de encabezado*/
+.header{
+    background-color:#c5cae9;
+    color: black;
+    padding: 10px;
+    text-align: center;
+}
+.column{
+    float: left;
+    width: 33.33%;
+    font-family: sans-serif;
+    color: black;
+    padding: 10px;
+}@media (max-width:600px){
+    .column{
+        width:100%;
+    }
+}
+</style>
+</head>
