@@ -1,30 +1,58 @@
-<html lang="es">
 <head>
->title>CSS PRACTICA 10</title>
+<title>CSS PRACTICA_10</title>
 <meta chatrset="utf-8">
 meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{
+* {
     box-sizing: border-box;
 }
 
 body{
-    margin: 2;
+    margin: 2px;
+    background-color: #039be5;
 }
 /*estilo de encabezado*/
-.header{
-    background-color:#c5cae9;
-    color: black;
+.header {
+    background-color: #006db3;
     padding: 10px;
     text-align: center;
+    color: darkblue;
+    text-shadow: 0 0 20px white, 0 0 5px darkblue;
 }
-.column{
+.titulo {
+    width: 80px;
+    margin-left: 77%;
+    border: 1px;
+    background-color:#006db3;
+    text-align: center;
+    color: white;
+}
+.row {
+    width: 100%;
+    box-sizing: border-box;
+}
+/*Estilo de columnas*/
+.column { 
+    background-color: #63ccff;
+    border-radius: 8px;
+    border: 2px darkblue;
     float: left;
-    width: 33.33%;
+    width: 28%;
     font-family: sans-serif;
+    text-align: justify;
     color: black;
-    padding: 10px;
-}@media (max-width:600px){
+    padding: 20px;
+    margin:10px 
+}
+
+/*Esilo renglon*/
+.row:after {
+    content:  "";
+    display: table;
+    clear: both;
+}
+
+@media (max-width:600px){
     .column{
         width:100%;
     }
