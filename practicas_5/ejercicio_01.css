@@ -1,0 +1,22 @@
+body {
+    background-color:#8c6332;
+}
+h1 {
+    color: red;
+    text-align: center;
+    font-family:arial;
+}
+h2 {
+    color: #b13973;
+    text-align: justify;
+    font-family: courier; 
+}
+p1{
+    color:#8509ff;
+}
+p {
+    background-color: darkgrey; 
+    color:#b13973;
+    font-family: new-roman;
+    font-size: 20px;
+}
