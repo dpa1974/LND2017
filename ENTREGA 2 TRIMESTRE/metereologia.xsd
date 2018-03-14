@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="metereologia">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="mediciones">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="medicion" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="temperatura">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:float" name="t_max"/>
+                          <xs:element type="xs:float" name="t_min"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="viento">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="direccion">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                  <xs:attribute type="xs:string" name="hora" use="optional"/>
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element type="xs:float" name="velocidad_med"/>
+                          <xs:element type="xs:float" name="racha_max"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type="xs:float" name="humedad"/>
+                    <xs:element type="xs:string" name="presion_atm"/>
+                    <xs:element name="mareas">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:time" name="plenamar" maxOccurs="unbounded" minOccurs="0"/>
+                          <xs:element type="xs:time" name="bajamar" maxOccurs="unbounded" minOccurs="0"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="sol">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:time" name="amanecer"/>
+                          <xs:element type="xs:time" name="atardecer"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type="xs:string" name="presipitaciones"/>
+                  </xs:sequence>
+                  <xs:attribute type="xs:date" name="fecha" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="mes"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
