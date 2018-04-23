@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>ejercicio 6</title>
+  <script>
+    var letras = ['T', 'R', 'W', 'A', 'G', 'M', 'Y', 'F', 'P', 'D', 'X', 'B', 'N', 'J', 'Z', 'S', 'Q', 'V', 'H', 'L', 'C', 'K', 'E', 'T'];
+    var nDNI;
+    nDNI = prompt("Indica tu numero de DNI ");
+    parseInt(nDNI);
+    if (nDNI < 0 || nDNI > 99999999) {
+      alert("numero incorrecto")
+    }
+    else {
+      var lDNI;
+      lDNI = prompt("la letra del DNI");
+      lDNI = lDNI.toUpperCase();
+      var l = letras[nDNI % 23];
+      if (l == lDNI) {
+        alert("El numero es correcto");
+      }
+      else {
+        alert("numero incorrecto")
+      }
+    }
+  </script>
+</head>
+
+</html>
