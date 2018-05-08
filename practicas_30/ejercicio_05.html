@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ejercicio 5</title>
+  </head>
+  <body>
+    <p>Crea un array que almacene propiedades y sus valores. Las propiedades serán jugador, edad y equipo. Muestra el array, propiedades y valores, por pantalla utilizando un bucle for...in.</p>
+    <script>
+      //,{jugador:"Cristiano Ronaldo",edad:"33",equipo:"Real Madrid"},{jugador:"Neymar",edad:"26",equipo:"PSG"}
+    var pPers = {jugador:"Lionel Messi",edad:"30 years",equipo:"FCBarcelona"};
+    var resultado ="";
+    var i;
+    for (i in pPers){
+      resultado += pPers[i] + " ";
+      document.write (pPers[i]+"<br>");
+    }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+<!DOTYPE html>
+<html>
+
+<head>
+  <title> Ejercicio 4 </title>
+</head>
+
+<body>
+  <h1>Los cincuenta numeros aleatorios</h1>
+  <p id="demo"></p>
+  <script>
+    var micontad = new Array(50);
+    for (var i = 0; i < micontad.length; i++) {
+      micontad[i] = Math.floor((Math.random() * 100) + 1);
+      document.write("Numero aleatorio" + micontad[i] + "<br>");
+    }
+  </script>
+</body>
+
+</html>
