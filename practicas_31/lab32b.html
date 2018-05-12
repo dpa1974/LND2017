@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <title>Práctica 32b - DOM básico</title>
+  <style type="text/css">
+    .oculto {
+      display: none;
+    }
+    
+    .visible {
+      display: inline;
+    }
+  </style>
+</head>
+
+<body>
+  <p id="provisional" , onclick="borrar()">Este texto se eliminara en unos instantes...</p>
+  <p id="texto" , onclick="nuevoParrafo()">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed mattis enim vitae orci. Phasellus libero. Maecenas nisl arcu, consequat congue, commodo nec, commodo ultricies, turpis. Quisque sapien nunc, posuere vitae, rutrum et, luctus at, pede. Pellentesque massa ante, ornare id, aliquam vitae, ultrices porttitor, pede. <span id="adicional" class="oculto">Nullam
+ sit amet nisl elementum elit convallis malesuada. Phasellus magna sem, 
+semper quis, faucibus ut, rhoncus non, mi. Duis pellentesque, felis eu 
+adipiscing ullamcorper, odio urna consequat arcu, at posuere ante quam 
+non dolor. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. 
+Duis scelerisque. Donec lacus neque, vehicula in, eleifend vitae, 
+venenatis ac, felis. Donec arcu. Nam sed tortor nec ipsum aliquam 
+ullamcorper. Duis accumsan metus eu urna. Aenean vitae enim. Integer 
+lacus. Vestibulum venenatis erat eu odio. Praesent id metus.</span></p> <a id="enlace" href="#" onclick="muestra(); return false;">Seguir leyendo</a>
+  <p id="final" ; style="border-bottom-color: chartreuse" ; onclick="frase">Y la frase del dia es ...</p>
+</body>
+<script type="text/javascript">
+  function muestra() {
+    var elemento = document.getElementById("adicional");
+    elemento.className = "visible";
+    var enlace = document.getElementById("enlace");
+    enlace.className = "oculto";
+  }
+
+  function borrar() {
+    var parrafo = document.getElementById("provisional");
+    parrafo.parentNode.removeChild(parrafo);
+  }
+
+  function nuevoParrafo() {
+    var nuevo = document.createElement("texto");
+    var destParent = document.getElementsByTagName("body")[0];
+    destParent.insertBefore(nuevo, destParent.firstChild);
+  }
+
+  function frase() {
+    var contenido = document.createTextNode("Hazlo simple: tan simple como sea posible, pero no más.");
+    var dicho = document.getElementById("final");
+    dicho.appendChild(contenido);
+  }
+</script>
+
+</html>
