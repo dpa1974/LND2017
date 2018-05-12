@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Practica 32 </title>
+  <style>
+    img {
+      position: absolute;
+    }
+    
+    div {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+    }
+    
+    #rightSide {
+      left: 500px;
+      border-left: 1px solid black;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Machine Game</h1>
+  <p>Pica en la cara sonriente exta en la izquierda</p>
+  <div id="leftSide"></div>
+  <div id="rightSide"></div>
+  <button onclick="generateFaces()"></button>
+</body>
+<script>
+  var numberOfFaces = 5;
+  var leftSide = document.getElementById("leftSide");
+  var rightSide = function createElement() {
+    imagen = document.createElement("img");
+    imagen.src = "smile.png";
+    imagen.style.top = "400px";
+    imagen.style.left = "400px";
+    document.getElementById("leftSide").appendChild(imagen);
+  }
+
+  function generateFaces() {
+    for (var i = 0; i < numberOfFaces; i++); {
+      imagen.style.top = Math.floor(Math.random() * 401) + "px";
+      imagen.style.left = Math.floor(Math.random() * 401) + "px";
+      leftSide.appendChild(imagen);
+    }
+    var imagen = document.getElementById("leftSide").lastChild;
+    var cln = imagen.cloneNode(true);
+  }
+</script>
+
+</html>
