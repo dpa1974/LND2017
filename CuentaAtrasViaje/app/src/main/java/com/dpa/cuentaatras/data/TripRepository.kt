@@ -3,8 +3,6 @@ package com.dpa.cuentaatras.data
 import android.content.Context
 import android.net.Uri
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dpa.cuentaatras.R
@@ -12,34 +10,47 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 private val Context.dataStore by preferencesDataStore(name = "trip")
 
+/** Guarda la lista de viajes como JSON en DataStore; son pocos y siempre se leen enteros. */
 class TripRepository(private val context: Context) {
 
     private val backgroundsDir get() = File(context.filesDir, "backgrounds")
 
-    val settings: Flow<TripSettings> = context.dataStore.data.map { prefs ->
-        TripSettings(
-            title = prefs[TITLE] ?: context.getString(R.string.default_title),
-            targetMillis = prefs[TARGET] ?: (System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)),
-            textColor = prefs[TEXT_COLOR] ?: DEFAULT_TEXT_COLOR,
-            backgroundPath = prefs[BACKGROUND]?.takeIf { File(it).exists() },
-        )
+    /** Viajes ordenados por fecha. Nunca está vacía: sin datos guardados emite un viaje por defecto. */
+    val trips: Flow<List<Trip>> = context.dataStore.data.map { prefs ->
+        prefs[TRIPS]?.let(::parseTrips)?.takeIf { it.isNotEmpty() }?.sortedBy { it.targetMillis }
+            ?: listOf(newTrip(id = DEFAULT_ID))
     }
 
-    suspend fun save(settings: TripSettings) {
+    fun newTrip(id: String = UUID.randomUUID().toString()) = Trip(
+        id = id,
+        title = context.getString(R.string.default_title),
+        targetMillis = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30),
+        textColor = Trip.DEFAULT_TEXT_COLOR,
+        backgroundPath = null,
+        dim = Trip.DEFAULT_DIM,
+    )
+
+    /** Inserta o reemplaza el viaje con el mismo id. */
+    suspend fun save(trip: Trip) = update { trips -> trips.filter { it.id != trip.id } + trip }
+
+    suspend fun delete(id: String) = update { trips -> trips.filter { it.id != id } }
+
+    private suspend fun update(transform: (List<Trip>) -> List<Trip>) {
+        var result = emptyList<Trip>()
         context.dataStore.edit { prefs ->
-            prefs[TITLE] = settings.title
-            prefs[TARGET] = settings.targetMillis
-            prefs[TEXT_COLOR] = settings.textColor
-            if (settings.backgroundPath != null) prefs[BACKGROUND] = settings.backgroundPath
-            else prefs.remove(BACKGROUND)
+            result = transform(prefs[TRIPS]?.let(::parseTrips).orEmpty())
+            prefs[TRIPS] = result.toJson()
         }
-        cleanupBackgrounds(keep = settings.backgroundPath)
+        cleanupBackgrounds(keep = result.mapNotNull { it.backgroundPath }.toSet())
     }
 
     /**
@@ -56,18 +67,44 @@ class TripRepository(private val context: Context) {
         file.absolutePath
     }
 
-    /** Borra las imágenes importadas que ya no usa la configuración guardada. */
-    suspend fun cleanupBackgrounds(keep: String?) = withContext(Dispatchers.IO) {
+    /** Borra las imágenes importadas que no usa ningún viaje guardado. */
+    suspend fun cleanupBackgrounds(keep: Set<String>) = withContext(Dispatchers.IO) {
         backgroundsDir.listFiles()
-            ?.filter { it.absolutePath != keep }
+            ?.filter { it.absolutePath !in keep }
             ?.forEach { it.delete() }
     }
 
+    private fun parseTrips(json: String): List<Trip> = runCatching {
+        val array = JSONArray(json)
+        (0 until array.length()).map { i ->
+            val o = array.getJSONObject(i)
+            Trip(
+                id = o.getString("id"),
+                title = o.getString("title"),
+                targetMillis = o.getLong("target"),
+                textColor = o.getInt("color"),
+                backgroundPath = if (o.isNull("bg")) null else o.getString("bg").takeIf { File(it).exists() },
+                dim = o.optDouble("dim", Trip.DEFAULT_DIM.toDouble()).toFloat(),
+            )
+        }
+    }.getOrDefault(emptyList())
+
+    private fun List<Trip>.toJson(): String = JSONArray().also { array ->
+        forEach { t ->
+            array.put(
+                JSONObject()
+                    .put("id", t.id)
+                    .put("title", t.title)
+                    .put("target", t.targetMillis)
+                    .put("color", t.textColor)
+                    .put("bg", t.backgroundPath ?: JSONObject.NULL)
+                    .put("dim", t.dim.toDouble())
+            )
+        }
+    }.toString()
+
     private companion object {
-        val TITLE = stringPreferencesKey("title")
-        val TARGET = longPreferencesKey("target_millis")
-        val TEXT_COLOR = intPreferencesKey("text_color")
-        val BACKGROUND = stringPreferencesKey("background_path")
-        const val DEFAULT_TEXT_COLOR = 0xFFFFFFFF.toInt()
+        val TRIPS = stringPreferencesKey("trips")
+        const val DEFAULT_ID = "default"
     }
 }

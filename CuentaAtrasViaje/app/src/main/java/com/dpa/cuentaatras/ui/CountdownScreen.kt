@@ -15,10 +15,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -39,18 +46,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.dpa.cuentaatras.R
-import com.dpa.cuentaatras.data.TripSettings
+import com.dpa.cuentaatras.data.Trip
 import com.dpa.cuentaatras.remainingUntil
 import kotlinx.coroutines.delay
 import java.io.File
 
 @Composable
-fun CountdownScreen(viewModel: CountdownViewModel = viewModel()) {
-    val saved by viewModel.settings.collectAsStateWithLifecycle()
-    val shown = viewModel.draft ?: saved
+fun CountdownScreen(viewModel: CountdownViewModel) {
+    val trips by viewModel.trips.collectAsStateWithLifecycle()
+    val draft = viewModel.draft
     val context = LocalContext.current
 
     val pickImage = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -65,14 +71,47 @@ fun CountdownScreen(viewModel: CountdownViewModel = viewModel()) {
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        if (shown == null) return@Box // DataStore aún cargando: solo unos milisegundos
+        val list = trips ?: return@Box // DataStore aún cargando: solo unos milisegundos
+        val pagerState = rememberPagerState { list.size }
 
-        Background(shown.backgroundPath)
-        CountdownContent(shown, Modifier.align(Alignment.Center))
+        LaunchedEffect(viewModel.pageToShow, list) {
+            val index = list.indexOfFirst { it.id == viewModel.pageToShow }
+            if (index >= 0) {
+                pagerState.scrollToPage(index)
+                viewModel.pageShown()
+            }
+        }
 
-        if (viewModel.draft == null) {
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = draft == null,
+            key = { list[it].id },
+            modifier = Modifier.fillMaxSize(),
+        ) { page ->
+            val trip = list[page]
+            CountdownPage(if (draft?.id == trip.id) draft else trip)
+        }
+
+        if (draft != null && viewModel.isNewDraft) {
+            CountdownPage(draft)
+        }
+
+        if (draft == null) {
+            IconButton(
+                onClick = viewModel::startNew,
+                modifier = Modifier.align(Alignment.TopEnd).safeDrawingPadding().padding(8.dp),
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_trip), tint = Color.White)
+            }
+            if (list.size > 1) {
+                PageIndicator(
+                    count = list.size,
+                    current = pagerState.currentPage,
+                    modifier = Modifier.align(Alignment.BottomCenter).safeDrawingPadding().padding(bottom = 36.dp),
+                )
+            }
             FloatingActionButton(
-                onClick = viewModel::startEditing,
+                onClick = { viewModel.startEditing(list[pagerState.currentPage.coerceIn(list.indices)]) },
                 modifier = Modifier.align(Alignment.BottomEnd).safeDrawingPadding().padding(16.dp),
             ) {
                 Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.edit))
@@ -80,21 +119,31 @@ fun CountdownScreen(viewModel: CountdownViewModel = viewModel()) {
         }
     }
 
-    viewModel.draft?.let { draft ->
+    if (draft != null) {
         EditSheet(
             draft = draft,
+            isNew = viewModel.isNewDraft,
             onChange = viewModel::updateDraft,
             onPickImage = {
                 pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
             onSave = viewModel::save,
+            onDelete = viewModel::delete,
             onCancel = viewModel::cancel,
         )
     }
 }
 
 @Composable
-private fun Background(path: String?) {
+private fun CountdownPage(trip: Trip) {
+    Box(Modifier.fillMaxSize()) {
+        Background(trip.backgroundPath, trip.dim)
+        CountdownContent(trip, Modifier.align(Alignment.Center))
+    }
+}
+
+@Composable
+private fun Background(path: String?, dim: Float) {
     if (path != null) {
         AsyncImage(
             model = File(path),
@@ -109,15 +158,15 @@ private fun Background(path: String?) {
             )
         )
     }
-    // Velo para que el texto se lea sobre cualquier foto.
-    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.25f)))
+    // Velo para que el texto se lea sobre cualquier foto; su intensidad la elige el usuario.
+    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = dim)))
 }
 
 @Composable
-private fun CountdownContent(settings: TripSettings, modifier: Modifier = Modifier) {
+private fun CountdownContent(trip: Trip, modifier: Modifier = Modifier) {
     val now by rememberNow()
-    val remaining = remainingUntil(settings.targetMillis, now)
-    val color = Color(settings.textColor)
+    val remaining = remainingUntil(trip.targetMillis, now)
+    val color = Color(trip.textColor)
     val shadow = Shadow(color = Color.Black.copy(alpha = 0.6f), offset = Offset(0f, 2f), blurRadius = 8f)
 
     Column(
@@ -125,7 +174,7 @@ private fun CountdownContent(settings: TripSettings, modifier: Modifier = Modifi
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = settings.title,
+            text = trip.title,
             color = color,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold, shadow = shadow),
@@ -150,7 +199,7 @@ private fun CountdownContent(settings: TripSettings, modifier: Modifier = Modifi
 
         Spacer(Modifier.height(24.dp))
         Text(
-            text = formatTarget(settings.targetMillis),
+            text = formatTarget(trip.targetMillis),
             color = color.copy(alpha = 0.85f),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium.copy(shadow = shadow),
@@ -168,6 +217,20 @@ private fun TimeUnit(value: String, label: String, color: Color, shadow: Shadow)
             style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold, shadow = shadow),
         )
         Text(text = label, color = color, style = MaterialTheme.typography.labelLarge.copy(shadow = shadow))
+    }
+}
+
+@Composable
+private fun PageIndicator(count: Int, current: Int, modifier: Modifier = Modifier) {
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        repeat(count) { i ->
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = if (i == current) 1f else 0.4f))
+            )
+        }
     }
 }
 
