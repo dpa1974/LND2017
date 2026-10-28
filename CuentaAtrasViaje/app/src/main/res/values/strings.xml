@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Cuenta atrás</string>
+    <string name="default_title">Mi viaje especial</string>
+    <string name="unit_days">días</string>
+    <string name="unit_hours">horas</string>
+    <string name="unit_minutes">min</string>
+    <string name="unit_seconds">seg</string>
+    <string name="arrived">¡Ha llegado el día! Buen viaje ✈️</string>
+    <string name="edit">Personalizar</string>
+    <string name="edit_title">Personaliza tu cuenta atrás</string>
+    <string name="field_text">Texto</string>
+    <string name="field_date">Fecha del viaje</string>
+    <string name="field_time">Hora</string>
+    <string name="field_text_color">Color del texto</string>
+    <string name="field_background">Imagen de fondo</string>
+    <string name="pick_image">Elegir imagen</string>
+    <string name="remove_image">Quitar</string>
+    <string name="custom_color">Personalizado</string>
+    <string name="hue">Tono</string>
+    <string name="saturation">Saturación</string>
+    <string name="brightness">Brillo</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">Aceptar</string>
+    <string name="image_error">No se pudo cargar la imagen</string>
+</resources>
