@@ -39,7 +39,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
+import androidx.glance.color.ColorProvider
 import com.dpa.cuentaatras.MainActivity
 import com.dpa.cuentaatras.R
 import com.dpa.cuentaatras.data.Trip
@@ -76,7 +76,8 @@ class TripWidget : GlanceAppWidget() {
             val context = LocalContext.current
             val background = remember(trip.backgroundPath) { trip.backgroundPath?.let(::decodeSampled) }
             val remaining = remainingUntil(trip.targetMillis, System.currentTimeMillis())
-            val color = ColorProvider(Color(trip.textColor))
+            val textColor = Color(trip.textColor)
+            val color = ColorProvider(day = textColor, night = textColor) // mismo color: lo elige el usuario
 
             Box(
                 modifier = GlanceModifier
