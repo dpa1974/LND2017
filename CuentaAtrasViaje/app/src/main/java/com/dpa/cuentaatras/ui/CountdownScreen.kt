@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,8 +60,10 @@ import java.io.File
 @Composable
 fun CountdownScreen(viewModel: CountdownViewModel) {
     val trips by viewModel.trips.collectAsStateWithLifecycle()
+    val reminder by viewModel.reminder.collectAsStateWithLifecycle()
     val draft = viewModel.draft
     val context = LocalContext.current
+    var showReminder by remember { mutableStateOf(false) }
 
     val pickImage = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) viewModel.importBackground(uri)
@@ -97,11 +103,13 @@ fun CountdownScreen(viewModel: CountdownViewModel) {
         }
 
         if (draft == null) {
-            IconButton(
-                onClick = viewModel::startNew,
-                modifier = Modifier.align(Alignment.TopEnd).safeDrawingPadding().padding(8.dp),
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_trip), tint = Color.White)
+            Row(Modifier.align(Alignment.TopEnd).safeDrawingPadding().padding(8.dp)) {
+                IconButton(onClick = { showReminder = true }) {
+                    Icon(Icons.Filled.Notifications, contentDescription = stringResource(R.string.reminder_title), tint = Color.White)
+                }
+                IconButton(onClick = viewModel::startNew) {
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_trip), tint = Color.White)
+                }
             }
             if (list.size > 1) {
                 PageIndicator(
@@ -117,6 +125,15 @@ fun CountdownScreen(viewModel: CountdownViewModel) {
                 Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.edit))
             }
         }
+    }
+
+    val currentReminder = reminder
+    if (showReminder && currentReminder != null) {
+        ReminderDialog(
+            current = currentReminder,
+            onSave = { viewModel.saveReminder(it); showReminder = false },
+            onDismiss = { showReminder = false },
+        )
     }
 
     if (draft != null) {

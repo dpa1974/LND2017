@@ -33,5 +33,13 @@
     <string name="widget_pick_trip">¿Qué viaje quieres en el widget?</string>
     <string name="widget_days_hours">días y %1$d h</string>
     <string name="widget_arrived">¡Hoy! ✈️</string>
+    <string name="reminder_title">Recordatorio diario</string>
+    <string name="reminder_enable">Avisarme cada día</string>
+    <string name="reminder_hint">Recibirás una notificación a esta hora con los días que faltan para cada viaje, aunque el móvil esté bloqueado.</string>
+    <string name="reminder_permission_denied">Sin permiso de notificaciones no se puede avisar. Actívalo en Ajustes → Aplicaciones → Cuenta atrás → Notificaciones.</string>
+    <string name="reminder_channel">Recordatorio diario</string>
+    <string name="reminder_today">¡Hoy es el día! %1$s ✈️</string>
+    <string name="reminder_tomorrow">Mañana: %1$s</string>
+    <string name="reminder_days">Faltan %1$d días para %2$s</string>
     <string name="image_error">No se pudo cargar la imagen</string>
 </resources>

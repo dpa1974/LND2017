@@ -8,9 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.dpa.cuentaatras.data.Reminder
 import com.dpa.cuentaatras.data.Trip
 import com.dpa.cuentaatras.data.TripRepository
+import com.dpa.cuentaatras.reminder.ReminderScheduler
 import com.dpa.cuentaatras.widget.TripWidget
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -26,6 +29,14 @@ class CountdownViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val trips: StateFlow<List<Trip>?> = repository.trips
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    val reminder: StateFlow<Reminder?> = repository.reminder
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    init {
+        // Reprograma por si la alarma se perdió (p. ej. el usuario forzó el cierre de la app).
+        viewModelScope.launch { ReminderScheduler.apply(app, repository.reminder.first()) }
+    }
 
     var draft by mutableStateOf<Trip?>(null)
         private set
@@ -91,6 +102,13 @@ class CountdownViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             repository.delete(toDelete.id)
             TripWidget().updateAll(app)
+        }
+    }
+
+    fun saveReminder(reminder: Reminder) {
+        viewModelScope.launch {
+            repository.saveReminder(reminder)
+            ReminderScheduler.apply(app, reminder)
         }
     }
 

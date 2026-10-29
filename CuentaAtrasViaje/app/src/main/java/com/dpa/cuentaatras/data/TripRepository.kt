@@ -2,7 +2,9 @@ package com.dpa.cuentaatras.data
 
 import android.content.Context
 import android.net.Uri
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dpa.cuentaatras.R
@@ -28,6 +30,20 @@ class TripRepository(private val context: Context) {
     val trips: Flow<List<Trip>> = context.dataStore.data.map { prefs ->
         prefs[TRIPS]?.let(::parseTrips)?.takeIf { it.isNotEmpty() }?.sortedBy { it.targetMillis }
             ?: listOf(newTrip(id = DEFAULT_ID))
+    }
+
+    val reminder: Flow<Reminder> = context.dataStore.data.map { prefs ->
+        Reminder(
+            enabled = prefs[REMINDER_ENABLED] ?: false,
+            minuteOfDay = prefs[REMINDER_MINUTE] ?: Reminder.DEFAULT_MINUTE_OF_DAY,
+        )
+    }
+
+    suspend fun saveReminder(reminder: Reminder) {
+        context.dataStore.edit { prefs ->
+            prefs[REMINDER_ENABLED] = reminder.enabled
+            prefs[REMINDER_MINUTE] = reminder.minuteOfDay
+        }
     }
 
     fun newTrip(id: String = UUID.randomUUID().toString()) = Trip(
@@ -105,6 +121,8 @@ class TripRepository(private val context: Context) {
 
     private companion object {
         val TRIPS = stringPreferencesKey("trips")
+        val REMINDER_ENABLED = booleanPreferencesKey("reminder_enabled")
+        val REMINDER_MINUTE = intPreferencesKey("reminder_minute_of_day")
         const val DEFAULT_ID = "default"
     }
 }
