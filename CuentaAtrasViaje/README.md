@@ -13,6 +13,9 @@ App nativa en Kotlin + Jetpack Compose (Material 3) que muestra una cuenta atrá
 - Deslizador para oscurecer el fondo (0–80 %) y que el texto se lea sobre cualquier foto.
 - Widget de pantalla de inicio: días y horas que faltan, con la foto y el color del viaje. Al añadirlo
   se elige qué viaje muestra; tocarlo abre la app en ese viaje. Se refresca cada 30 min y al guardar.
+- Recordatorio diario (campana 🔔): notificación a la hora elegida con los días que faltan para cada
+  viaje, también con el móvil bloqueado. Puede llegar con unos minutos de margen (alarma inexacta, no
+  necesita el permiso de alarmas exactas). Se restaura sola tras reiniciar el móvil.
 - Los cambios se ven en vivo y solo se guardan al pulsar **Guardar**.
 
 ## Estructura
@@ -26,8 +29,21 @@ App nativa en Kotlin + Jetpack Compose (Material 3) que muestra una cuenta atrá
 | `ui/EditSheet.kt`, `ui/ColorPicker.kt` | Panel de personalización y selectores. |
 | `widget/TripWidget.kt` | Widget con Jetpack Glance. |
 | `widget/TripWidgetConfigActivity.kt` | Pantalla para elegir el viaje del widget. |
+| `reminder/ReminderScheduler.kt` | Programa la alarma del recordatorio diario. |
+| `reminder/ReminderReceiver.kt` | Muestra la notificación y reprograma (también tras reiniciar). |
+| `ui/ReminderDialog.kt` | Diálogo para activar el recordatorio y elegir la hora. |
 
 ## Compilar
 Abrir la carpeta `CuentaAtrasViaje` en Android Studio (Ladybug o posterior) y ejecutar.
 Por terminal: `./gradlew assembleDebug` y `./gradlew test`.
 Requisitos: JDK 17+, Android SDK 35. minSdk 26 (Android 8.0).
+
+## Notas para móviles OPPO / Xiaomi / Huawei
+Estas capas cierran apps en segundo plano. Si el recordatorio no llega, en Ajustes → Aplicaciones →
+Cuenta atrás → Uso de batería, permitir actividad en segundo plano e inicio automático. Para instalar
+desde Android Studio en OPPO hay que activar «Instalar vía USB» en Opciones de desarrollador.
+
+## Generar el APK para compartir
+Build → Generate Signed App Bundle or APK → **APK** → keystore (`.jks`) → variante `release`.
+El resultado queda en `app/release/app-release.apk`. Guarda el `.jks` y sus contraseñas: sin ellos no
+se pueden publicar actualizaciones que se instalen encima.
