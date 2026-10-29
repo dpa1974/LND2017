@@ -2,7 +2,7 @@ package com.dpa.cuentaatras.data
 
 /**
  * Un viaje con su personalización. [textColor] es ARGB; [backgroundPath] apunta a filesDir;
- * [dim] es la opacidad (0..1) del velo negro sobre el fondo.
+ * [dim] es la opacidad (0..1) del velo negro sobre el fondo; [font] se aplica al título y los números.
  */
 data class Trip(
     val id: String,
@@ -11,6 +11,7 @@ data class Trip(
     val textColor: Int,
     val backgroundPath: String?,
     val dim: Float,
+    val font: TripFont = TripFont.DEFAULT,
 ) {
     companion object {
         const val DEFAULT_TEXT_COLOR = 0xFFFFFFFF.toInt()

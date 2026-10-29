@@ -101,6 +101,7 @@ class TripRepository(private val context: Context) {
                 textColor = o.getInt("color"),
                 backgroundPath = if (o.isNull("bg")) null else o.getString("bg").takeIf { File(it).exists() },
                 dim = o.optDouble("dim", Trip.DEFAULT_DIM.toDouble()).toFloat(),
+                font = TripFont.fromName(o.optString("font")),
             )
         }
     }.getOrDefault(emptyList())
@@ -115,6 +116,7 @@ class TripRepository(private val context: Context) {
                     .put("color", t.textColor)
                     .put("bg", t.backgroundPath ?: JSONObject.NULL)
                     .put("dim", t.dim.toDouble())
+                    .put("font", t.font.name)
             )
         }
     }.toString()

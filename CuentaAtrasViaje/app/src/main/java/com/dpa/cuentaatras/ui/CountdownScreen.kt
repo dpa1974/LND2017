@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -185,6 +186,18 @@ private fun CountdownContent(trip: Trip, modifier: Modifier = Modifier) {
     val remaining = remainingUntil(trip.targetMillis, now)
     val color = Color(trip.textColor)
     val shadow = Shadow(color = Color.Black.copy(alpha = 0.6f), offset = Offset(0f, 2f), blurRadius = 8f)
+    val family = trip.font.fontFamily
+    // Las fuentes incluidas solo tienen un grosor; forzar negrita las deformaría (negrita sintética).
+    val titleStyle = MaterialTheme.typography.headlineLarge.copy(
+        fontFamily = family,
+        fontWeight = if (family == null) FontWeight.SemiBold else FontWeight.Normal,
+        shadow = shadow,
+    )
+    val numberStyle = MaterialTheme.typography.displayMedium.copy(
+        fontFamily = family,
+        fontWeight = if (family == null) FontWeight.Bold else FontWeight.Normal,
+        shadow = shadow,
+    )
 
     Column(
         modifier = modifier.fillMaxWidth().safeDrawingPadding().padding(horizontal = 16.dp),
@@ -194,7 +207,7 @@ private fun CountdownContent(trip: Trip, modifier: Modifier = Modifier) {
             text = trip.title,
             color = color,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold, shadow = shadow),
+            style = titleStyle,
         )
         Spacer(Modifier.height(32.dp))
 
@@ -207,10 +220,10 @@ private fun CountdownContent(trip: Trip, modifier: Modifier = Modifier) {
             )
         } else {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                TimeUnit(remaining.days.toString(), stringResource(R.string.unit_days), color, shadow)
-                TimeUnit(remaining.hours.pad(), stringResource(R.string.unit_hours), color, shadow)
-                TimeUnit(remaining.minutes.pad(), stringResource(R.string.unit_minutes), color, shadow)
-                TimeUnit(remaining.seconds.pad(), stringResource(R.string.unit_seconds), color, shadow)
+                TimeUnit(remaining.days.toString(), stringResource(R.string.unit_days), color, shadow, numberStyle)
+                TimeUnit(remaining.hours.pad(), stringResource(R.string.unit_hours), color, shadow, numberStyle)
+                TimeUnit(remaining.minutes.pad(), stringResource(R.string.unit_minutes), color, shadow, numberStyle)
+                TimeUnit(remaining.seconds.pad(), stringResource(R.string.unit_seconds), color, shadow, numberStyle)
             }
         }
 
@@ -225,13 +238,13 @@ private fun CountdownContent(trip: Trip, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun TimeUnit(value: String, label: String, color: Color, shadow: Shadow) {
+private fun TimeUnit(value: String, label: String, color: Color, shadow: Shadow, numberStyle: TextStyle) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
             color = color,
             maxLines = 1,
-            style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold, shadow = shadow),
+            style = numberStyle,
         )
         Text(text = label, color = color, style = MaterialTheme.typography.labelLarge.copy(shadow = shadow))
     }

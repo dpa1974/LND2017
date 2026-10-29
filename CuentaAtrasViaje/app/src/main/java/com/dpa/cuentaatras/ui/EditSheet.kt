@@ -1,5 +1,6 @@
 package com.dpa.cuentaatras.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Slider
@@ -46,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dpa.cuentaatras.R
 import com.dpa.cuentaatras.data.Trip
+import com.dpa.cuentaatras.data.TripFont
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -106,6 +111,10 @@ fun EditSheet(
                         Text(formatTime(draft.targetMillis))
                     }
                 }
+            }
+
+            Section(stringResource(R.string.field_font)) {
+                FontPicker(selected = draft.font, onSelect = { onChange(draft.copy(font = it)) })
             }
 
             Section(stringResource(R.string.field_text_color)) {
@@ -180,6 +189,31 @@ fun EditSheet(
             onConfirm = { onChange(draft.copy(targetMillis = it)); showTimePicker = false },
             onDismiss = { showTimePicker = false },
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FontPicker(selected: TripFont, onSelect: (TripFont) -> Unit) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(TripFont.entries) { font ->
+            val isSelected = font == selected
+            OutlinedCard(
+                onClick = { onSelect(font) },
+                border = BorderStroke(
+                    if (isSelected) 2.dp else 1.dp,
+                    if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                ),
+            ) {
+                Column(
+                    Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text("Aa 123", fontFamily = font.fontFamily, style = MaterialTheme.typography.titleLarge)
+                    Text(font.label, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
     }
 }
 

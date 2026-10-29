@@ -6,6 +6,9 @@ App nativa en Kotlin + Jetpack Compose (Material 3) que muestra una cuenta atrá
 - Varios viajes: se pasa de uno a otro deslizando (ordenados por fecha). **+** añade, el lápiz edita,
   y desde el editor se puede borrar.
 - Texto personalizable (título del viaje, hasta 60 caracteres).
+- Tipo de letra por viaje para el título y los números: Clásica, Pacifico, Lobster, Bebas Neue,
+  Abril Fatface y Permanent Marker (Google Fonts incluidas en la app; licencias en `licenses/fonts`).
+  El widget usa siempre la del sistema: los widgets no admiten fuentes propias.
 - Fecha y hora del viaje (no deja elegir días pasados).
 - Color del texto: 10 colores rápidos + selector HSV.
 - Imagen de fondo desde la galería (Photo Picker, sin pedir permisos). Se copia a almacenamiento
@@ -29,6 +32,8 @@ App nativa en Kotlin + Jetpack Compose (Material 3) que muestra una cuenta atrá
 | `ui/EditSheet.kt`, `ui/ColorPicker.kt` | Panel de personalización y selectores. |
 | `widget/TripWidget.kt` | Widget con Jetpack Glance. |
 | `widget/TripWidgetConfigActivity.kt` | Pantalla para elegir el viaje del widget. |
+| `reminder/BackgroundAccess.kt` | Excepción de batería y pantalla de inicio automático del fabricante. |
+| `ui/Fonts.kt` | Fuentes incluidas y su nombre visible. |
 | `reminder/ReminderScheduler.kt` | Programa la alarma del recordatorio diario. |
 | `reminder/ReminderReceiver.kt` | Muestra la notificación y reprograma (también tras reiniciar). |
 | `ui/ReminderDialog.kt` | Diálogo para activar el recordatorio y elegir la hora. |
@@ -39,8 +44,9 @@ Por terminal: `./gradlew assembleDebug` y `./gradlew test`.
 Requisitos: JDK 17+, Android SDK 35. minSdk 26 (Android 8.0).
 
 ## Notas para móviles OPPO / Xiaomi / Huawei
-Estas capas cierran apps en segundo plano. Si el recordatorio no llega, en Ajustes → Aplicaciones →
-Cuenta atrás → Uso de batería, permitir actividad en segundo plano e inicio automático. Para instalar
+Estas capas cierran apps en segundo plano. El diálogo del recordatorio incluye «Para que el aviso llegue
+siempre»: pide quitar la optimización de batería y abre la pantalla de inicio automático del fabricante
+(o la ficha de la app si esa pantalla no existe en esa versión). Para instalar
 desde Android Studio en OPPO hay que activar «Instalar vía USB» en Opciones de desarrollador.
 
 ## Generar el APK para compartir

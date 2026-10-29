@@ -41,5 +41,13 @@
     <string name="reminder_today">¡Hoy es el día! %1$s ✈️</string>
     <string name="reminder_tomorrow">Mañana: %1$s</string>
     <string name="reminder_days">Faltan %1$d días para %2$s</string>
+    <string name="field_font">Tipo de letra</string>
+    <string name="background_title">Para que el aviso llegue siempre</string>
+    <string name="background_battery">Quitar las restricciones de batería</string>
+    <string name="background_battery_ok">Sin restricciones de batería</string>
+    <string name="background_allow">Permitir</string>
+    <string name="background_autostart">Inicio automático y actividad en segundo plano</string>
+    <string name="background_open">Abrir</string>
+    <string name="background_vendor_hint">Activa «Inicio automático» para Cuenta atrás. Si se abre la ficha de la app, entra en Uso de batería y permite la actividad en segundo plano.</string>
     <string name="image_error">No se pudo cargar la imagen</string>
 </resources>
