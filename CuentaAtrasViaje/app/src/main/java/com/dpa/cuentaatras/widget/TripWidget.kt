@@ -17,12 +17,14 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -55,6 +57,9 @@ class TripWidget : GlanceAppWidget() {
 
     override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
+    // Recompone con el tamaño real del widget, que en Android 11 o anterior suele ser el mínimo (110 dp).
+    override val sizeMode: SizeMode = SizeMode.Exact
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repository = TripRepository(context)
         provideContent {
@@ -70,6 +75,8 @@ class TripWidget : GlanceAppWidget() {
     companion object {
         val TRIP_ID = stringPreferencesKey("trip_id")
         private val OPEN_TRIP = ActionParameters.Key<String>(MainActivity.EXTRA_TRIP_ID)
+        private const val BASE_SIZE_DP = 110f
+        private const val MIN_HEIGHT_FOR_TITLE_DP = 90f
 
         @Composable
         private fun WidgetContent(trip: Trip) {
@@ -78,6 +85,11 @@ class TripWidget : GlanceAppWidget() {
             val remaining = remainingUntil(trip.targetMillis, System.currentTimeMillis())
             val textColor = Color(trip.textColor)
             val color = ColorProvider(day = textColor, night = textColor) // mismo color: lo elige el usuario
+            // Los tamaños están pensados para 110 × 110 dp y crecen con el widget. Lo que no cabe en un
+            // widget se recorta sin avisar, así que en tamaños muy bajos se prescinde del título.
+            val size = LocalSize.current
+            val scale = (minOf(size.width.value, size.height.value) / BASE_SIZE_DP).coerceIn(0.8f, 1.8f)
+            val showTitle = size.height.value >= MIN_HEIGHT_FOR_TITLE_DP
 
             Box(
                 modifier = GlanceModifier
@@ -94,27 +106,31 @@ class TripWidget : GlanceAppWidget() {
                 )
                 Box(GlanceModifier.fillMaxSize().background(Color.Black.copy(alpha = trip.dim))) {}
                 Column(
-                    modifier = GlanceModifier.padding(12.dp),
+                    modifier = GlanceModifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = trip.title,
-                        maxLines = 2,
-                        style = TextStyle(color = color, fontSize = 14.sp, textAlign = TextAlign.Center),
-                    )
+                    if (showTitle) {
+                        Text(
+                            text = trip.title,
+                            maxLines = 1,
+                            style = TextStyle(color = color, fontSize = (13 * scale).sp, textAlign = TextAlign.Center),
+                        )
+                    }
                     if (remaining.isOver) {
                         Text(
                             text = context.getString(R.string.widget_arrived),
-                            style = TextStyle(color = color, fontSize = 22.sp, fontWeight = FontWeight.Bold),
+                            style = TextStyle(color = color, fontSize = (20 * scale).sp, fontWeight = FontWeight.Bold),
                         )
                     } else {
                         Text(
                             text = remaining.days.toString(),
-                            style = TextStyle(color = color, fontSize = 40.sp, fontWeight = FontWeight.Bold),
+                            maxLines = 1,
+                            style = TextStyle(color = color, fontSize = (34 * scale).sp, fontWeight = FontWeight.Bold),
                         )
                         Text(
                             text = context.getString(R.string.widget_days_hours, remaining.hours),
-                            style = TextStyle(color = color, fontSize = 13.sp),
+                            maxLines = 1,
+                            style = TextStyle(color = color, fontSize = (12 * scale).sp),
                         )
                     }
                 }
